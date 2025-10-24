@@ -117,9 +117,10 @@ function showScene(id){
     document.getElementById(id).classList.add('active');
 }
 
+// Start button click
 document.getElementById('startBtn').addEventListener('click',()=>{
     bgMusic.volume=0.3;
-    bgMusic.play(); 
+    bgMusic.play().catch(()=>{}); // safe autoplay in Chrome
     showScene('scene2');
     nextFeeling();
 });
@@ -152,7 +153,7 @@ function showConfession(){
     });
 }
 
-// Initial typing for Scene 1
+// Scene 1 initial typing
 typeText(document.getElementById('entranceText'),"Hey... I’ve been wanting to tell you something for a while 💕");
 </script>
 </body>
