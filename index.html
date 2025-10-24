@@ -1,187 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For You – from GAURAV SINGH TOMAR 💖</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ffdee9 0%, #b5fffc 100%);
-            color: #333;
-            overflow-x: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 1s ease;
-        }
-        .scene {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            text-align: center;
-            opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 1s ease, transform 1s ease;
-        }
-        .scene.active { opacity: 1; transform: scale(1); }
-        .background {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            background-size: cover;
-            background-position: center;
-        }
-        .stars { background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px; }
-        .sunset { background: linear-gradient(to bottom, #ff7e5f, #feb47b, #2c3e50); }
-        .hearts { background: linear-gradient(135deg, #ffdee9, #b5fffc); }
-        .hearts::before {
-            content: '';
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: radial-gradient(circle, rgba(255,0,0,0.1) 2px, transparent 2px);
-            background-size: 20px 20px;
-            animation: float 5s ease-in-out infinite;
-        }
-        @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);} }
-        .text { font-size:1.5rem; max-width:600px; margin:20px; line-height:1.6; opacity:0; animation:fadeIn 2s ease forwards; }
-        .text.large { font-size:3rem; font-family:'Great Vibes', cursive; color:#e74c3c; text-shadow:0 0 10px rgba(231,76,60,0.5); animation:pulse 2s infinite; }
-        @keyframes fadeIn { to{opacity:1;} }
-        @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
-        .button {
-            background: linear-gradient(45deg, #ff6b6b, #feca57);
-            color:white; border:none; padding:15px 30px; font-size:1.2rem;
-            border-radius:50px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(0,0,0,0.2);
-            margin-top:20px;
-        }
-        .button:hover { transform:scale(1.1); box-shadow:0 6px 20px rgba(0,0,0,0.3); }
-        .typing { border-right:2px solid #333; animation:blink 1s infinite; }
-        @keyframes blink { 0%,50%{border-color:transparent;}51%,100%{border-color:#333;} }
-        .signature { font-family:'Great Vibes', cursive; font-size:1.5rem; margin-top:20px; }
-        .quote { font-style:italic; font-size:1rem; margin-top:20px; opacity:0.8; }
-        .footer { position:absolute; bottom:10px; font-size:0.8rem; opacity:0.7; }
-        @media(max-width:768px) { .text{font-size:1.2rem;} .text.large{font-size:2rem;} .button{padding:12px 25px;font-size:1rem;} }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You – from GAURAV SINGH TOMAR 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg,#ffdee9 0%,#b5fffc 100%);
+    color:#333;
+    overflow-x:hidden;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transition: all 1s ease;
+}
+.scene {
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    display:flex; flex-direction:column;
+    justify-content:center; align-items:center;
+    text-align:center;
+    opacity:0;
+    transform:scale(0.9);
+    transition: opacity 1s ease, transform 1s ease;
+}
+.scene.active { opacity:1; transform:scale(1);}
+.background { position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; background-size:cover; background-position:center;}
+.stars { background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size:50px 50px; }
+.sunset { background: linear-gradient(to bottom, #ff7e5f,#feb47b,#2c3e50);}
+.hearts { background: linear-gradient(135deg,#ffdee9,#b5fffc);}
+.hearts::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background-image: radial-gradient(circle, rgba(255,0,0,0.1) 2px, transparent 2px); background-size:20px 20px; animation: float 5s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);} }
+.text { font-size:1.5rem; max-width:600px; margin:20px; line-height:1.6; opacity:0; animation:fadeIn 2s ease forwards; }
+.text.large { font-size:3rem; font-family:'Great Vibes',cursive; color:#e74c3c; text-shadow:0 0 10px rgba(231,76,60,0.5); animation:pulse 2s infinite; }
+@keyframes fadeIn { to{opacity:1;} }
+@keyframes pulse {0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
+.button { background:linear-gradient(45deg,#ff6b6b,#feca57); color:white; border:none; padding:15px 30px; font-size:1.2rem; border-radius:50px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(0,0,0,0.2); margin-top:20px; }
+.button:hover { transform:scale(1.1); box-shadow:0 6px 20px rgba(0,0,0,0.3);}
+.typing { border-right:2px solid #333; animation:blink 1s infinite; }
+@keyframes blink { 0%,50%{border-color:transparent;}51%,100%{border-color:#333;} }
+.signature { font-family:'Great Vibes',cursive; font-size:1.5rem; margin-top:20px; }
+.quote { font-style:italic; font-size:1rem; margin-top:20px; opacity:0.8; }
+.footer { position:absolute; bottom:10px; font-size:0.8rem; opacity:0.7;}
+@media(max-width:768px){ .text{font-size:1.2rem;} .text.large{font-size:2rem;} .button{padding:12px 25px;font-size:1rem;} }
+</style>
 </head>
 <body>
-    <audio id="bgMusic" loop>
-        <source src="https://www.example.com/romantic-piano.mp3" type="audio/mpeg">
-    </audio>
 
-    <!-- Scene 1 -->
-    <div id="scene1" class="scene active">
-        <div class="background stars"></div>
-        <div class="text" id="entranceText"></div>
-        <button class="button" id="startBtn">Click to Begin 💞</button>
-    </div>
+<audio id="bgMusic" loop>
+<source src="https://www.example.com/romantic-piano.mp3" type="audio/mpeg">
+</audio>
 
-    <!-- Scene 2 -->
-    <div id="scene2" class="scene">
-        <div class="background hearts"></div>
-        <div class="text" id="feelingsText"></div>
-        <button class="button" id="nextBtn" style="display:none;">Next ❤️</button>
-    </div>
+<!-- Scene 1 -->
+<div id="scene1" class="scene active">
+    <div class="background stars"></div>
+    <div class="text" id="entranceText"></div>
+    <button class="button" id="startBtn">Click to Begin 💞</button>
+</div>
 
-    <!-- Scene 3 -->
-    <div id="scene3" class="scene">
-        <div class="background sunset"></div>
-        <div class="text" id="confessionText"></div>
-        <div class="text large" id="loveText" style="display:none;"></div>
-        <div class="signature" id="signature" style="display:none;">– From GAURAV SINGH TOMAR 💫</div>
-    </div>
+<!-- Scene 2 -->
+<div id="scene2" class="scene">
+    <div class="background hearts"></div>
+    <div class="text" id="feelingsText"></div>
+    <button class="button" id="nextBtn" style="display:none;">Next ❤️</button>
+</div>
 
-    <!-- Scene 4 -->
-    <div id="scene4" class="scene">
-        <div class="background hearts"></div>
-        <div class="text quote">“Some words aren’t meant to be said — they’re meant to be felt.”</div>
-        <button class="button" id="shareBtn">Send this to your crush 💌</button>
-        <div class="footer">Made with ❤️ by GAURAV SINGH TOMAR for someone unforgettable.</div>
-    </div>
+<!-- Scene 3 -->
+<div id="scene3" class="scene">
+    <div class="background sunset"></div>
+    <div class="text" id="confessionText"></div>
+    <div class="text large" id="loveText" style="display:none;"></div>
+    <div class="signature" id="signature" style="display:none;">– From GAURAV SINGH TOMAR 💫</div>
+</div>
 
-    <script>
-        const bgMusic = document.getElementById('bgMusic');
-        let feelingsIndex = 0;
-        const feelings = [
-            "Every time I see you, my world just stops for a second. 🌸",
-            "Your smile fixes any bad day ☀️",
-            "This feeling feels beautiful 💫",
-            "My heart refuses to stay quiet 💗",
-            "You’ve become my favorite thought 🌙",
-            "And now, I just have one last thing to say…"
-        ];
+<!-- Scene 4 -->
+<div id="scene4" class="scene">
+    <div class="background hearts"></div>
+    <div class="text quote">“Some words aren’t meant to be said — they’re meant to be felt.”</div>
+    <div class="footer">Made with ❤️ by GAURAV SINGH TOMAR for someone unforgettable.</div>
+</div>
 
-        function typeText(element,text,callback){
-            let i=0;
-            element.textContent='';
-            element.classList.add('typing');
-            const interval=setInterval(()=>{
-                element.textContent+=text[i];
-                i++;
-                if(i===text.length){
-                    clearInterval(interval);
-                    element.classList.remove('typing');
-                    if(callback) callback();
-                }
-            },50);
+<script>
+const bgMusic = document.getElementById('bgMusic');
+let feelingsIndex = 0;
+const feelings=[
+    "Every time I see you, my world just stops for a second. 🌸",
+    "Your smile fixes any bad day ☀️",
+    "This feeling feels beautiful 💫",
+    "My heart refuses to stay quiet 💗",
+    "You’ve become my favorite thought 🌙",
+    "And now, I just have one last thing to say…"
+];
+
+function typeText(el,text,callback){
+    let i=0;
+    el.textContent='';
+    el.classList.add('typing');
+    const interval=setInterval(()=>{
+        el.textContent+=text[i];
+        i++;
+        if(i===text.length){
+            clearInterval(interval);
+            el.classList.remove('typing');
+            if(callback) callback();
         }
+    },50);
+}
 
-        function showScene(id){
-            document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            bgMusic.volume=0.3;
-            bgMusic.play();
-        }
+function showScene(id){
+    document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
 
-        document.getElementById('startBtn').addEventListener('click',()=>{
-            showScene('scene2');
-            nextFeeling();
-        });
+document.getElementById('startBtn').addEventListener('click',()=>{
+    bgMusic.volume=0.3;
+    bgMusic.play(); 
+    showScene('scene2');
+    nextFeeling();
+});
 
-        document.getElementById('nextBtn').addEventListener('click', nextFeeling);
+document.getElementById('nextBtn').addEventListener('click',nextFeeling);
 
-        function nextFeeling(){
-            document.getElementById('nextBtn').style.display='none';
-            if(feelingsIndex<feelings.length){
-                typeText(document.getElementById('feelingsText'),feelings[feelingsIndex],()=>{
-                    if(feelingsIndex<feelings.length-1){
-                        document.getElementById('nextBtn').style.display='block';
-                    } else {
-                        setTimeout(()=>showConfession(),1000);
-                    }
-                });
-                feelingsIndex++;
+function nextFeeling(){
+    document.getElementById('nextBtn').style.display='none';
+    if(feelingsIndex<feelings.length){
+        typeText(document.getElementById('feelingsText'),feelings[feelingsIndex],()=>{
+            if(feelingsIndex<feelings.length-1){
+                document.getElementById('nextBtn').style.display='block';
+            } else {
+                setTimeout(()=>showConfession(),1000);
             }
-        }
+        });
+        feelingsIndex++;
+    }
+}
 
-        function showConfession(){
-            showScene('scene3');
-            typeText(document.getElementById('confessionText'),"I think… I’ve fallen in love with you.",()=>{
-                setTimeout(()=>{
-                    const loveText=document.getElementById('loveText');
-                    const signature=document.getElementById('signature');
-                    loveText.textContent="I LOVE YOU ❤️";
-                    loveText.style.display='block';
-                    signature.style.display='block';
-                    setTimeout(()=>showScene('scene4'),4000);
-                },1500);
-            });
-        }
+function showConfession(){
+    showScene('scene3');
+    typeText(document.getElementById('confessionText'),"I think… I’ve fallen in love with you.",()=>{
+        setTimeout(()=>{
+            document.getElementById('loveText').textContent="I LOVE YOU ❤️";
+            document.getElementById('loveText').style.display='block';
+            document.getElementById('signature').style.display='block';
+            setTimeout(()=>showScene('scene4'),4000);
+        },1500);
+    });
+}
 
-        function share(){
-            navigator.clipboard.writeText(window.location.href)
-            .then(()=>{ alert("Link copied! Send it to your crush 💌"); })
-            .catch(err=>{ console.error("Error copying link:",err); });
-        }
-
-        document.getElementById('shareBtn').addEventListener('click',share);
-
-        // Initial typing for Scene 1
-        typeText(document.getElementById('entranceText'),"Hey... I’ve been wanting to tell you something for a while 💕");
-    </script>
+// Initial typing for Scene 1
+typeText(document.getElementById('entranceText'),"Hey... I’ve been wanting to tell you something for a while 💕");
+</script>
 </body>
 </html>
