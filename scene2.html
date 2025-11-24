@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Scene 2 — The Moments</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="animations.css">
+</head>
+<body class="scene scene2">
+  <div id="s2-root" class="root fullscreen" aria-live="polite">
+
+    <div id="s2-bg" class="bg-layer" aria-hidden="true"></div>
+    <div class="layer hearts" aria-hidden="true"></div>
+    <div class="layer petals" aria-hidden="true"></div>
+
+    <main class="centerbox">
+      <div id="s2-msg" class="message">
+        <h2 id="s2-typed" class="type-animate" aria-live="assertive"></h2>
+      </div>
+      <button id="next-btn" class="btn-small pulse" aria-label="Next">Next ❤️</button>
+    </main>
+
+    <div class="controls">
+      <button id="mute-toggle-2" class="audio-ctrl" aria-pressed="false" aria-label="Mute / Unmute music">🔊</button>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
