@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Romantic Confession — SPA</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="animations.css">
+</head>
+<body class="spa-root">
+  <noscript>
+    <div class="no-js-message">
+      <h2>Enable JavaScript for the full experience.</h2>
+      <p>You can still view static content — enable JS for animations, music and transitions.</p>
+    </div>
+  </noscript>
+
+  <!-- Persistent audio (controls hidden, starts on first gesture) -->
+  <audio id="bg-music" preload="auto" loop src="assets/song.mp3" crossorigin="anonymous"></audio>
+  <audio id="heartbeat-snd" preload="auto" src="assets/heartbeat.mp3"></audio>
+
+  <!-- Scenes container: only one file, multiple sections -->
+  <main id="app" aria-live="polite">
+    <!-- Scene 1 -->
+    <section id="scene-1" class="scene active" data-scene="1" role="region" aria-label="Entrance">
+      <div class="bg video-bg">
+        <video id="s1-video" autoplay muted loop playsinline preload="auto">
+          <source src="assets/bg-scene1.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="layer petals" aria-hidden="true"></div>
+      <div class="centerbox">
+        <h1 class="headline" id="s1-head" data-text="Hey... I have something to tell you 💕">Hey... I have something to tell you 💕</h1>
+        <button id="start-btn" class="btn-primary pulse" aria-label="Click to begin">Click to Begin ❤️</button>
+        <div class="controls">
+          <button id="mute-btn" class="audio-ctrl" aria-pressed="false" aria-label="Mute music">🔊</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scene 2 -->
+    <section id="scene-2" class="scene" data-scene="2" role="region" aria-label="The Moments">
+      <div id="s2-bg" class="bg image-bg"></div>
+      <div class="layer hearts" aria-hidden="true"></div>
+      <div class="layer petals" aria-hidden="true"></div>
+      <div class="centerbox">
+        <h2 id="s2-typed" class="type-animate" aria-live="assertive"></h2>
+        <button id="next-btn" class="btn-small pulse" aria-label="Next">Next ❤️</button>
+      </div>
+      <div class="controls">
+        <button id="mute-btn-2" class="audio-ctrl" aria-pressed="false" aria-label="Mute music">🔊</button>
+      </div>
+    </section>
+
+    <!-- Scene 3 -->
+    <section id="scene-3" class="scene" data-scene="3" role="region" aria-label="Confession">
+      <div id="s3-bg" class="bg image-bg"></div>
+      <div class="layer rain" aria-hidden="true"></div>
+      <div class="centerbox">
+        <h2 id="s3-line1" class="type-animate" aria-live="assertive"></h2>
+        <div id="s3-final" class="final-reveal">
+          <h1 class="reveal-love">I LOVE YOU ❤️</h1>
+          <p class="signature">– From GAURAV SINGH TOMAR 💫</p>
+        </div>
+        <button id="continue-btn" class="btn-primary pulse" aria-label="Continue">Continue 💖</button>
+      </div>
+      <div class="controls">
+        <button id="mute-btn-3" class="audio-ctrl" aria-pressed="false" aria-label="Mute music">🔊</button>
+      </div>
+    </section>
+
+    <!-- Scene 4 -->
+    <section id="scene-4" class="scene" data-scene="4" role="region" aria-label="After Confession">
+      <div id="s4-bg" class="bg"></div>
+      <div class="layer hearts" aria-hidden="true"></div>
+      <div class="centerbox">
+        <h2 class="subtle">Some feelings don’t need explanation... they just need to be felt.</h2>
+        <div class="actions">
+          <button id="send-btn" class="btn-primary pulse" aria-label="Send this to your crush">Send this to your crush 💌</button>
+        </div>
+        <footer class="footer">Made with ❤️ by GAURAV SINGH TOMAR for someone truly special.</footer>
+      </div>
+      <div class="controls">
+        <button id="mute-btn-4" class="audio-ctrl" aria-pressed="false" aria-label="Mute music">🔊</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+  </html>
