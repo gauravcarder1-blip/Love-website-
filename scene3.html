@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Scene 3 — Confession</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="animations.css">
+</head>
+<body class="scene scene3">
+  <div id="s3-root" class="root fullscreen" aria-live="polite">
+    <div id="s3-bg" class="bg-layer" aria-hidden="true"></div>
+    <div class="layer rain" aria-hidden="true"></div>
+
+    <main class="centerbox">
+      <div id="s3-text" class="confession">
+        <h2 id="s3-line1" class="type-animate"></h2>
+        <div id="s3-final" class="final-reveal">
+          <h1 class="reveal-love">I LOVE YOU ❤️</h1>
+          <p class="signature">– From GAURAV SINGH TOMAR 💫</p>
+        </div>
+      </div>
+      <button id="continue-btn" class="btn-primary pulse" aria-label="Continue">Continue 💖</button>
+    </main>
+
+    <div class="controls">
+      <button id="mute-toggle-3" class="audio-ctrl" aria-pressed="false" aria-label="Mute / Unmute music">🔊</button>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
