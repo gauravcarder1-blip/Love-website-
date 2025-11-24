@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "scene1.html", "use": "@vercel/static" },
+    { "src": "scene2.html", "use": "@vercel/static" },
+    { "src": "scene3.html", "use": "@vercel/static" },
+    { "src": "scene4.html", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/scene1.html" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}
