@@ -1,303 +1,274 @@
-/* Shared logic for all scenes
-   - typing engine
-   - preloading assets
-   - transitions using crossfade classes and history.pushState
-   - audio control & persistence
-   - scene-specific sequences controlled by checking body.classList
-*/
-
-(function(){
+// script.js — SPA controller
+(() => {
   'use strict';
 
-  const AUDIO_KEY = 'romantic_mute';
-  const S2_STEP_KEY = 'scene2_step';
-  const TIMEOUT = (n)=>new Promise(r=>setTimeout(r,n));
+  const S2_KEY = 'scene2_step';
+  const MUTE_KEY = 'romantic_mute';
+  const s = (q) => document.querySelector(q);
+  const sa = (q) => Array.from(document.querySelectorAll(q));
 
-  // Basic asset preloader
-  function preloadAssets(list){
-    list.forEach(src=>{
-      if(!src) return;
-      if(src.endsWith('.mp3') || src.endsWith('.wav')){
-        const a = new Audio(); a.preload='auto'; a.src = src; // browser may not load until user gesture
-      } else if(src.match(/\.(jpg|png|webp|gif)$/i)){
-        const i = new Image(); i.src = src;
-      } else if(src.match(/\.(mp4|webm)$/i)){
-        const v = document.createElement('video'); v.preload='auto'; v.src=src;
-      }
+  // DOM
+  const scenes = sa('.scene');
+  const music = s('#bg-music');
+  const hb = s('#heartbeat-snd');
+
+  // Scene nodes
+  const scene1 = s('#scene-1');
+  const scene2 = s('#scene-2');
+  const scene3 = s('#scene-3');
+  const scene4 = s('#scene-4');
+
+  const startBtn = s('#start-btn');
+  const nextBtn = s('#next-btn');
+  const continueBtn = s('#continue-btn');
+  const sendBtn = s('#send-btn');
+
+  const muteButtons = sa('.audio-ctrl');
+
+  const s2Typed = s('#s2-typed');
+  const s3Line1 = s('#s3-line1');
+  const s3Final = s('#s3-final');
+
+  const s2Bg = s('#s2-bg');
+  const s3Bg = s('#s3-bg');
+  const s4Bg = s('#s4-bg');
+
+  // Scenes data
+  const s2Steps = [
+    { bg: 'assets/scene2-step1.jpg', text: 'Every time you smile, the world feels lighter ☀️' },
+    { bg: 'assets/scene2-step2.jpg', text: 'You don’t even realize how effortlessly you make my day better 🌹' },
+    { bg: 'assets/scene2-step3.jpg', text: 'I tried to hide these feelings… but they refuse to stay quiet 🌙' },
+    { bg: 'assets/scene2-step4.jpg', text: 'You’re that one person I never want to lose 💫' },
+    { bg: 'assets/scene2-step5.jpg', text: 'You’ve taken a special place in my heart — permanently 💖' },
+    { bg: 'assets/scene2-step6.jpg', text: 'And now… I just need to say this, once and for all.' }
+  ];
+
+  // helpers
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  function setActiveScene(n) {
+    scenes.forEach(sec => sec.classList.toggle('active', sec.dataset.scene === String(n)));
+    history.replaceState({scene:n}, '', `#scene${n}`);
+  }
+
+  // persist mute state
+  function getMuted() { return sessionStorage.getItem(MUTE_KEY) === '1'; }
+  function setMuted(v) {
+    if (!music) return;
+    music.muted = v;
+    hb.muted = v;
+    sessionStorage.setItem(MUTE_KEY, v ? '1' : '0');
+    muteButtons.forEach(b => { b.textContent = v ? '🔇' : '🔊'; b.setAttribute('aria-pressed', v); });
+  }
+
+  // Preload assets (light)
+  function preload(list) {
+    list.forEach(src => {
+      if (!src) return;
+      if (/\.(jpg|png|webp|gif)$/i.test(src)) { const img = new Image(); img.src = src; }
+      else if (/\.(mp3|wav|ogg)$/i.test(src)) { const a = new Audio(); a.preload = 'auto'; a.src = src; }
+      else if (/\.(mp4|webm)$/i.test(src)) { const v = document.createElement('video'); v.preload = 'auto'; v.src = src; }
     });
   }
 
-  // Humanized typing engine
-  function typeText(el, text, opts={min:25,max:120,caret:true}){
-    if(!el) return Promise.resolve();
+  // typing engine
+  async function typeText(el, text, opts = {min:20, max:120, caret:true}) {
+    if (!el) return;
     el.textContent = '';
-    if(opts.caret) el.classList.add('type-caret');
-    let i=0;
-    return new Promise(async (resolve)=>{
-      while(i<text.length){
-        const ch = text[i++];
-        el.textContent += ch;
-        // variable delay for more human feel
-        const base = Math.random()*(opts.max-opts.min)+opts.min;
-        await TIMEOUT(base + (ch===' ' ? 40 : 0));
-      }
-      if(opts.caret) el.classList.remove('type-caret');
-      resolve();
-    });
+    if (opts.caret) el.classList.add('type-caret');
+    for (let i = 0; i < text.length; i++) {
+      el.textContent += text[i];
+      const delay = Math.random() * (opts.max - opts.min) + opts.min;
+      await sleep(delay + (text[i] === ' ' ? 40 : 0));
+    }
+    el.classList.remove('type-caret');
   }
 
-  // Simple utility to add petal/heart elements for scene backgrounds
-  function spawnFloating(container, sprite, count=14, cls='petal'){
-    if(!container) return;
-    for(let i=0;i<count;i++){
+  // spawn floating elements (petals/hearts)
+  function spawnFloating(containerSelector, sprite, count = 12, cls = 'petal') {
+    const container = s(containerSelector) || document.body;
+    for (let i = 0; i < count; i++) {
       const el = document.createElement('div');
       el.className = cls;
-      el.style.left = Math.random()*100 + '%';
-      el.style.top = (-10 - Math.random()*10) + 'vh';
-      el.style.opacity = (0.6 + Math.random()*0.4).toFixed(2);
-      el.style.width = (18 + Math.random()*36) + 'px';
-      el.style.height = el.style.width;
+      el.style.left = (Math.random() * 100) + '%';
+      el.style.top = (-10 - Math.random() * 10) + 'vh';
+      const size = 14 + Math.random() * 36;
+      el.style.width = `${size}px`;
+      el.style.height = `${size}px`;
       el.style.backgroundImage = `url(${sprite})`;
       el.style.backgroundSize = 'contain';
       el.style.backgroundRepeat = 'no-repeat';
-      el.style.animationDuration = (8+Math.random()*10)+'s';
+      el.style.opacity = (0.6 + Math.random() * 0.4).toFixed(2);
+      el.classList.add('animate');
+      el.style.animationDuration = (8 + Math.random() * 10) + 's';
       container.appendChild(el);
-      // recycle when done
-      (function(e){
-        e.addEventListener('animationend', ()=>{
-          e.remove();
-        });
-      })(el);
+      el.addEventListener('animationend', () => el.remove());
     }
   }
 
-  // Simple heart/particle background generator (lightweight)
-  function makeParallax(root){
-    root.addEventListener('pointermove', e=>{
-      const cx = e.clientX / window.innerWidth - 0.5;
-      const cy = e.clientY / window.innerHeight - 0.5;
-      root.style.transform = `translate3d(${cx*8}px, ${cy*6}px, 0)`;
+  // parallax small effect
+  function enableParallax(container) {
+    container.addEventListener('pointermove', (e) => {
+      const cx = (e.clientX / window.innerWidth - 0.5) * 8;
+      const cy = (e.clientY / window.innerHeight - 0.5) * 6;
+      container.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
     });
   }
 
-  // Audio manager
-  const audio = {
-    music: null,
-    heartbeat: null,
-    init(){
-      if(this.music) return;
-      this.music = new Audio('assets/music.mp3');
-      this.music.loop = true; this.music.preload='auto';
-      this.heartbeat = new Audio('assets/heartbeat.mp3');
-      this.heartbeat.loop = false; this.heartbeat.preload='auto';
-    },
-    async playMusic(){
-      try{ this.init(); await this.music.play(); }catch(e){/* may be blocked until user gesture */}
-    },
-    pauseMusic(){ if(this.music) this.music.pause(); },
-    playHeartbeat(){ try{ this.init(); this.heartbeat.currentTime=0; this.heartbeat.play(); }catch(e){} },
-    setMuted(v){ if(this.music) this.music.muted=v; if(this.heartbeat) this.heartbeat.muted=v; }
+  // scene controllers
+  async function startScene1() {
+    setActiveScene(1);
+    // type headline
+    const h = s('#s1-head');
+    await typeText(h, h.dataset.text || h.textContent, {min:30, max:110});
+    // petal warm
+    spawnFloating('#scene-1 .layer', 'assets/scene1-petal-sprite.png', 18, 'petal');
+    enableParallax(scene1);
   }
 
-  // Persisted mute state
-  function getMuted(){ return sessionStorage.getItem(AUDIO_KEY) === '1'; }
-  function setMuted(v){ sessionStorage.setItem(AUDIO_KEY, v ? '1':'0'); audio.setMuted(v); updateMuteButtons(v); }
-  function updateMuteButtons(v){ document.querySelectorAll('.audio-ctrl').forEach(b=>{ b.textContent = v? '🔇':'🔊'; b.setAttribute('aria-pressed', !!v); }); }
+  async function runScene2() {
+    setActiveScene(2);
+    let step = parseInt(sessionStorage.getItem(S2_KEY) || '0', 10);
+    step = Math.max(0, Math.min(step, s2Steps.length - 1));
+    await showS2Step(step);
 
-  // Crossfade transition helper (basic)
-  async function navigateTo(url){
-    // start preloading target scene's images (very lightweight approach: look for assets/ in same folder)
-    const imgList = [
-      'assets/scene2-step1.jpg','assets/scene2-step2.jpg','assets/scene2-step3.jpg','assets/scene2-step4.jpg','assets/scene2-step5.jpg','assets/scene2-step6.jpg',
-      'assets/bg-scene1.mp4','assets/music.mp3','assets/heartbeat.mp3'
-    ];
-    preloadAssets(imgList);
-
-    // smooth fade-out: apply class to body and wait
-    document.documentElement.classList.add('crossfade-exit-active');
-    await TIMEOUT(200);
-    // push history and navigate (we still use location.href to ensure file loading)
-    history.pushState({site:navigateTo, url}, '', url);
-    location.href = url;
-  }
-
-  // Scene specific controllers
-  async function scene1Controller(){
-    const root = document.getElementById('s1-root');
-    const startBtn = document.getElementById('start-btn');
-    const bgVideo = document.getElementById('s1-bg-video');
-    const mute = getMuted(); updateMuteButtons(mute);
-
-    // prewarm audio objects
-    audio.init(); audio.setMuted(mute);
-
-    // typed headline already present; add event listeners
-    startBtn.addEventListener('click', async ()=>{
-      await audio.playMusic();
-      // small click sound could be implemented if asset provided
-      history.pushState({step:'scene1-start'}, '', 'scene1.html');
-      await navigateTo('scene2.html');
-    });
-
-    // also allow tapping anywhere
-    root.addEventListener('click', async (e)=>{
-      if(e.target===startBtn) return;
-      await audio.playMusic();
-      history.pushState({step:'scene1-start'}, '', 'scene1.html');
-      await navigateTo('scene2.html');
-    });
-
-    document.querySelectorAll('#mute-toggle').forEach(b=>b.addEventListener('click', ()=>setMuted(!getMuted())));
-
-    // spawn some petals on load
-    const petalLayer = root.querySelector('.petals');
-    spawnFloating(petalLayer, 'assets/scene1-petal-sprite.png', 18, 'petal');
-
-    // typing headline (if JS enabled)
-    const h = document.querySelector('.headline.type-animate');
-    typeText(h, h.dataset.text || h.textContent, {min:30,max:120});
-
-    makeParallax(root);
-  }
-
-  async function scene2Controller(){
-    const root = document.getElementById('s2-root');
-    const bg = document.getElementById('s2-bg');
-    const msg = document.getElementById('s2-typed');
-    const nextBtn = document.getElementById('next-btn');
-
-    const steps = [
-      {bg:'assets/scene2-step1.jpg', text:'Every time you smile, the world feels lighter ☀️'},
-      {bg:'assets/scene2-step2.jpg', text:'You don’t even realize how effortlessly you make my day better 🌹'},
-      {bg:'assets/scene2-step3.jpg', text:'I tried to hide these feelings… but they refuse to stay quiet 🌙'},
-      {bg:'assets/scene2-step4.jpg', text:'You’re that one person I never want to lose 💫'},
-      {bg:'assets/scene2-step5.jpg', text:'You’ve taken a special place in my heart — permanently 💖'},
-      {bg:'assets/scene2-step6.jpg', text:'And now… I just need to say this, once and for all.'}
-    ];
-
-    let step = parseInt(sessionStorage.getItem(S2_STEP_KEY) || '0', 10);
-    step = Math.min(Math.max(step,0), steps.length-1);
-
-    audio.init(); audio.setMuted(getMuted()); await audio.playMusic();
-
-    async function showStep(i){
-      const s = steps[i];
-      // update background
-      bg.style.backgroundImage = `url('${s.bg}')`;
-      // spawn some hearts/petals for each step
-      const heartLayer = root.querySelector('.hearts');
-      const petalLayer = root.querySelector('.petals');
-      heartLayer.innerHTML = '';
-      petalLayer.innerHTML = '';
-      spawnFloating(heartLayer, 'assets/scene2-heart-sprite.png', 8, 'heart');
-      spawnFloating(petalLayer, 'assets/scene1-petal-sprite.png', 10, 'petal');
-
-      // typing
-      msg.textContent='';
-      await typeText(msg, s.text, {min:22,max:110});
-      sessionStorage.setItem(S2_STEP_KEY, String(i));
+    async function advance() {
+      if (step < s2Steps.length - 1) {
+        step++;
+        await showS2Step(step);
+      } else {
+        // go to scene 3
+        sessionStorage.setItem(S2_KEY, String(step));
+        navigateToScene(3);
+      }
     }
 
-    // initial show
-    await showStep(step);
-
-    // advance function
-    async function advance(){
-      if(step < steps.length -1){ step++; await showStep(step); }
-      else { history.pushState({from:'s2-final'}, '', 'scene2.html'); await navigateTo('scene3.html'); }
-    }
-
-    root.addEventListener('click', (e)=>{ if(e.target!==nextBtn) advance(); });
+    scene2.addEventListener('click', (ev) => { if (ev.target !== nextBtn) advance(); });
     nextBtn.addEventListener('click', advance);
-
-    document.querySelectorAll('#mute-toggle-2').forEach(b=>b.addEventListener('click', ()=>setMuted(!getMuted())));
-
-    makeParallax(root);
+    enableParallax(scene2);
   }
 
-  async function scene3Controller(){
-    const root = document.getElementById('s3-root');
-    const line1 = document.getElementById('s3-line1');
-    const final = document.getElementById('s3-final');
-    const continueBtn = document.getElementById('continue-btn');
-
-    audio.init(); audio.setMuted(getMuted()); await audio.playMusic();
-
-    // Heartbeat synced reveal
-    async function reveal(){
-      // slowly type the fragile line while heartbeat plays and increases slightly
-      audio.playHeartbeat();
-      await typeText(line1, 'I think… I’ve fallen in love with you.', {min:90,max:160});
-      // pause, then dramatic final reveal
-      await TIMEOUT(700);
-      // increase brightness: show final
-      final.classList.add('show');
-      document.querySelector('.reveal-love')?.classList.add('show');
-      // spawn burst of petals and rays
-      const rays = document.createElement('div'); rays.className='rays ray-anim'; root.appendChild(rays);
-      spawnFloating(root.querySelector('.layer') || root, 'assets/scene1-petal-sprite.png', 36, 'petal');
-    }
-
-    reveal();
-
-    continueBtn.addEventListener('click', async ()=>{
-      history.pushState({from:'s3'}, '', 'scene3.html');
-      await navigateTo('scene4.html');
-    });
-
-    document.querySelectorAll('#mute-toggle-3').forEach(b=>b.addEventListener('click', ()=>setMuted(!getMuted())));
-    makeParallax(root);
+  async function showS2Step(i) {
+    const step = s2Steps[i];
+    s2Bg.style.backgroundImage = `url('${step.bg}')`;
+    s2Typed.textContent = '';
+    // spawn hearts & petals
+    s('#scene-2 .hearts').innerHTML = '';
+    s('#scene-2 .petals').innerHTML = '';
+    spawnFloating('#scene-2 .hearts', 'assets/scene2-heart-sprite.png', 8, 'heart');
+    spawnFloating('#scene-2 .petals', 'assets/scene1-petal-sprite.png', 10, 'petal');
+    await typeText(s2Typed, step.text, {min:22, max:110});
+    sessionStorage.setItem(S2_KEY, String(i));
   }
 
-  async function scene4Controller(){
-    const root = document.getElementById('s4-root');
-    const sendBtn = document.getElementById('send-btn');
-    audio.init(); audio.setMuted(getMuted()); await audio.playMusic();
+  async function runScene3() {
+    setActiveScene(3);
+    s3Line1.textContent = '';
+    s3Final.classList.remove('show');
+    // heartbeat while typing
+    hb.currentTime = 0;
+    hb.play().catch(()=>{});
+    await typeText(s3Line1, "I think… I’ve fallen in love with you.", {min:90, max:160});
+    await sleep(700);
+    // show final reveal
+    s3Final.classList.add('show');
+    s('#scene-3 .centerbox .reveal-love').classList.add('show');
+    spawnFloating('#scene-3', 'assets/scene1-petal-sprite.png', 36, 'petal');
+    // continue button
+    continueBtn.addEventListener('click', () => navigateToScene(4));
+    enableParallax(scene3);
+  }
 
-    // UI only: prevent any share or alerts
-    sendBtn.addEventListener('click', ()=>{
-      // purely UI effect: a soft pulse and glow, but no external behavior
+  async function runScene4() {
+    setActiveScene(4);
+    sendBtn.addEventListener('click', () => {
       sendBtn.classList.add('sent');
       setTimeout(()=>sendBtn.classList.remove('sent'), 900);
     });
-
-    document.querySelectorAll('#mute-toggle-4').forEach(b=>b.addEventListener('click', ()=>setMuted(!getMuted())));
-    makeParallax(root);
+    enableParallax(scene4);
   }
 
-  // On load: dispatch controller based on body class
-  function init(){
-    const body = document.body;
-    // Preload critical assets
-    preloadAssets(['assets/music.mp3','assets/heartbeat.mp3','assets/scene1-petal-sprite.png']);
+  // Navigation without reload
+  function navigateToScene(n) {
+    history.pushState({scene:n}, '', `#scene${n}`);
+    switch(n) {
+      case 1: startScene1(); break;
+      case 2: runScene2(); break;
+      case 3: runScene3(); break;
+      case 4: runScene4(); break;
+      default: startScene1();
+    }
+  }
 
-    // Attach mute buttons listeners (global)
-    document.querySelectorAll('.audio-ctrl').forEach(b=>{
-      b.addEventListener('click', ()=>setMuted(!getMuted()));
+  // start behavior: music only after user gesture (browser autoplay policy)
+  function userGestureStart() {
+    // start music if not already playing
+    if (music.paused) {
+      music.play().catch(()=>{ /* blocked until user interacts — we are inside gesture so should play */ });
+    }
+    // mark we started so subsequent clicks don't retrigger
+    window.removeEventListener('pointerdown', userGestureStart);
+  }
+
+  // initial setup
+  function init() {
+    // preload critical assets
+    preload([
+      'assets/song.mp3','assets/heartbeat.mp3','assets/scene1-petal-sprite.png',
+      'assets/scene2-step1.jpg','assets/scene2-step2.jpg','assets/scene2-step3.jpg'
+    ]);
+
+    // restore mute
+    setMuted(getMuted());
+
+    // global mute buttons
+    muteButtons.forEach(b => b.addEventListener('click', () => setMuted(!getMuted())));
+
+    // scene start handlers
+    startBtn.addEventListener('click', async (e) => {
+      // start music on first gesture
+      userGestureStart();
+      await music.play().catch(()=>{});
+      navigateToScene(2);
     });
 
-    // Route to scene-specific controllers
-    if(body.classList.contains('scene1')) scene1Controller();
-    else if(body.classList.contains('scene2')) scene2Controller();
-    else if(body.classList.contains('scene3')) scene3Controller();
-    else if(body.classList.contains('scene4')) scene4Controller();
+    // if user clicks anywhere on scene1 start too
+    scene1.addEventListener('click', (ev) => {
+      if (ev.target === startBtn) return;
+      userGestureStart();
+      music.play().catch(()=>{});
+      navigateToScene(2);
+    });
 
-    // Restore media mute state
-    updateMuteButtons(getMuted());
+    // popstate restore
+    window.addEventListener('popstate', (ev) => {
+      const scene = (ev.state && ev.state.scene) ? ev.state.scene : 1;
+      // read stored scene if any
+      if (scene === 2) runScene2();
+      else if (scene === 3) runScene3();
+      else if (scene === 4) runScene4();
+      else startScene1();
+    });
 
-    // Handle popstate for back/forward restoring for scene2
-    window.addEventListener('popstate', (ev)=>{
-      // attempt to restore scene2 step if applicable
-      if(location.pathname.endsWith('scene2.html')){
-        // page will reload; sessionStorage preserves step
+    // start at hash scene or 1
+    const startHash = location.hash.match(/scene(\d)/);
+    const startScene = startHash ? Number(startHash[1]) : 1;
+    // small delay then start
+    setTimeout(()=> {
+      switch(startScene) {
+        case 2: runScene2(); break;
+        case 3: runScene3(); break;
+        case 4: runScene4(); break;
+        default: startScene1();
       }
-    });
+    }, 120);
 
-    // Graceful fallback for JS disabled is handled by noscript in scene1
+    // ensure audio reflect mute
+    setMuted(getMuted());
+    // allow first gesture anywhere to start audio
+    window.addEventListener('pointerdown', userGestureStart, {once:true});
   }
 
-  // Expose some helpers for debugging
-  window.romanticApp = { preloadAssets, typeText };
-
+  // run
   document.addEventListener('DOMContentLoaded', init);
 })();
